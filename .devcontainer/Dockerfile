@@ -1,23 +1,25 @@
-ARG VARIANT="3.1"
-FROM mcr.microsoft.com/vscode/devcontainers/dotnet:${VARIANT}
+#-------------------------------------------------------------------------------------------------------------
+# Copyright (c) Microsoft Corporation. All rights reserved.
+# Licensed under the MIT License. See https://go.microsoft.com/fwlink/?linkid=2090316 for license information.
+#-------------------------------------------------------------------------------------------------------------
 
-# This fixes dotnet test breaking tty
-RUN touch ~/.bashrc
-RUN echo ' \n\
-  dotnet () \n\
-  { \n\
-  local RET_VAL; \n\
-  local BEFORE=$(stty -g); \n\
-  $(which dotnet) "$@"; \n\
-  RET_VAL=$?; \n\
-  sleep 0.33; \n\
-  stty "${BEFORE}"; \n\
-  return $RET_VAL \n\
-  } ' >> /home/vscode/.bashrc
+FROM mono:6
 
-# This fixes omnisharp 
-RUN apt-get install gnupg ca-certificates
-RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
-RUN echo "deb https://download.mono-project.com/repo/ubuntu stable-focal main" | tee /etc/apt/sources.list.d/mono-official-stable.list
-RUN apt-get update -y
-RUN apt-get install mono-devel -y
+ENV DEBIAN_FRONTEND=noninteractive
+ARG USERNAME=vscode
+ARG USER_UID=1000
+ARG USER_GID=$USER_UID
+
+RUN apt-get update \
+	&& apt-get -y install --no-install-recommends apt-utils dialog 2>&1 \
+	&& apt-get -y install git openssh-client less iproute2 procps lsb-release \
+	&& groupadd --gid $USER_GID $USERNAME \
+	&& useradd -s /bin/bash --uid $USER_UID --gid $USER_GID -m $USERNAME \
+	&& apt-get install -y sudo \
+	&& echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME\
+	&& chmod 0440 /etc/sudoers.d/$USERNAME \
+	&& apt-get autoremove -y \
+	&& apt-get clean -y \
+	&& rm -rf /var/lib/apt/lists/*
+
+ENV DEBIAN_FRONTEND=dialog

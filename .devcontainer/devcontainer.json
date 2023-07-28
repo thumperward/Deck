@@ -8,8 +8,13 @@
 				"EditorConfig.EditorConfig",
 				"ms-dotnettools.csharp"
 			],
-			"settings": {}
+			"settings": {
+				"omnisharp.useModernNet": false
+			}
 		}
 	},
-	"postAttachCommand": "git config --global --add safe.directory /workspaces/Deck"
+	"postAttachCommand": {
+		"fix-git": "git config --global --add safe.directory /workspaces/Deck",
+		"add-packages": "nuget restore"
+	}
 }
