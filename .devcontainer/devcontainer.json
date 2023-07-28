@@ -1,0 +1,14 @@
+{
+	"name": "Debian",
+	"dockerFile": "Dockerfile",
+	"features": {},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"EditorConfig.EditorConfig"
+			],
+			"settings": {}
+		}
+	},
+	"postAttachCommand": "git config --global --add safe.directory /workspaces/Deck"
+}
